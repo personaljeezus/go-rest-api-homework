@@ -75,7 +75,7 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 
 	task, ok := tasks[id]
 	if !ok {
-		http.Error(w, "Задание не найдено", http.StatusNoContent)
+		http.Error(w, "Задание не найдено", http.StatusBadRequest)
 		return
 	}
 
@@ -87,13 +87,17 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	s, err := w.Write(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusTeapot)
+	}
+	fmt.Printf("how much data we have here huh, %d", s)
 }
 func goDelete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	task, ok := tasks[id]
 	if !ok {
-		http.Error(w, "Задание не найдено", http.StatusNoContent)
+		http.Error(w, "Задание не найдено", http.StatusBadRequest)
 		return
 	}
 	resp, err := json.Marshal(task)
@@ -104,14 +108,18 @@ func goDelete(w http.ResponseWriter, r *http.Request) {
 	delete(tasks, id)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	s, err := w.Write(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusTeapot)
+	}
+	fmt.Printf("how much data we have here huh, %d", s)
 }
 func main() {
 	r := chi.NewRouter()
 	r.Get("/tasks", getTasks)
 	r.Post("/tasks", postTask)
-	r.Get("/task/{id}", getTask)
-	r.Delete("/task/{id}", goDelete)
+	r.Get("/tasks", getTask)
+	r.Delete("/tasks", goDelete)
 
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		fmt.Printf("Ошибка при запуске сервера: %s", err.Error())

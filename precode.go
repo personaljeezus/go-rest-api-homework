@@ -20,7 +20,7 @@ var tasks = map[string]Task{
 	"1": {
 		ID:          "1",
 		Description: "Сделать финальное задание темы REST API",
-		Note:        "Если сегодня сделаю, то завтра будет свободный день. Ura!",
+		Note:        "Если сегодня сделаю, то завтра будет свободный день. Ура!",
 		Applications: []string{
 			"VS Code",
 			"Terminal",
@@ -29,7 +29,7 @@ var tasks = map[string]Task{
 	},
 	"2": {
 		ID:          "2",
-		Description: "Протестировать финальное задание c помощью Postmen",
+		Description: "Протестировать финальное задание с помощью Postmen",
 		Note:        "Лучше это делать в процессе разработки, каждый раз, когда запускаешь сервер и проверяешь хендлер",
 		Applications: []string{
 			"VS Code",
@@ -87,11 +87,10 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	s, err := w.Write(resp)
+	_, err := w.Write(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusTeapot)
 	}
-	fmt.Printf("how much data we have here huh, %d", s)
 }
 func goDelete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
@@ -108,18 +107,17 @@ func goDelete(w http.ResponseWriter, r *http.Request) {
 	delete(tasks, id)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	s, err := w.Write(resp)
+	_, err := w.Write(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusTeapot)
 	}
-	fmt.Printf("how much data we have here huh, %d", s)
 }
 func main() {
 	r := chi.NewRouter()
 	r.Get("/tasks", getTasks)
 	r.Post("/tasks", postTask)
-	r.Get("/tasks", getTask)
-	r.Delete("/tasks", goDelete)
+	r.Get("/tasks/{id}", getTask)
+	r.Delete("/tasks/{id}", goDelete)
 
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		fmt.Printf("Ошибка при запуске сервера: %s", err.Error())
